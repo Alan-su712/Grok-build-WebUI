@@ -1,0 +1,39 @@
+{
+  "name": "grok-build-webui",
+  "version": "1.0.0",
+  "description": "Independent multilingual browser UI for the local Grok Build Runtime. Not affiliated with or endorsed by xAI.",
+  "homepage": "https://github.com/Alan-su712/Grok-build-webui#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Alan-su712/Grok-build-webui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Alan-su712/Grok-build-webui/issues"
+  },
+  "bin": {
+    "grok-build-webui": "bin/grok-build-webui.cjs"
+  },
+  "files": [
+    "bin/grok-build-webui.cjs",
+    "server.py",
+    "market-translations.json",
+    "static/**",
+    "README.md",
+    "README.en.md",
+    "README.ja.md",
+    "README.zh-TW.md",
+    "NOTICE.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node bin/grok-build-webui.cjs"
+  },
+  "keywords": [
+    "grok",
+    "webui",
+    "browser-ui",
+    "multilingual"
+  ]
+}
