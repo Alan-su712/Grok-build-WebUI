@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="grok-day" data-work-style="harness">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    if (new URLSearchParams(location.search).get("host") === "desktop") {
+      document.documentElement.dataset.host = "desktop";
+    }
+  </script>
+  <title>Grok Build WebUI</title>
+  <link rel="icon" href="/favicon.png?v=19" type="image/png">
+  <meta name="font-attribution" content="中文界面使用 MiSans Global 字体（小米提供）；详情见 /fonts/NOTICE.md。">
+  <link rel="stylesheet" href="/styles.css?v=169">
+</head>
+<body>
+  <div class="app" id="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-row">
+        <button type="button" class="brand" id="brandHome" title="Grok Build">
+          <span class="brand-lockup">
+            <img class="brand-wordmark" src="/static/grok-build-wordmark-reference.png?v=1" width="874" height="166" alt="Grok Build">
+            <span class="brand-badge">WebUI</span>
+          </span>
+        </button>
+      </div>
+      <nav class="side-menu">
+        <button type="button" class="side-item" id="newChat" data-i18n-title="automationNewTask" data-i18n-aria="automationNewTask" title="新建任务" aria-label="新建任务">
+          <svg viewBox="0 0 16 16" width="17" height="17" aria-hidden="true"><circle cx="8" cy="8" r="6.6" fill="none" stroke="currentColor" stroke-width="1.2"/><path fill="currentColor" d="M8 4.6a.6.6 0 0 1 .6.6v2.2h2.2a.6.6 0 1 1 0 1.2H8.6v2.2a.6.6 0 1 1-1.2 0V8.6H5.2a.6.6 0 1 1 0-1.2h2.2V5.2A.6.6 0 0 1 8 4.6z"/></svg>
+          <span data-i18n="automationNewTask">新建任务</span><span class="kbd">Ctrl+N</span>
+        </button>
+        <button type="button" class="side-item" id="sideSearch" data-i18n-title="sidebarSearch" data-i18n-aria="sidebarSearch" title="搜索" aria-label="搜索">
+          <svg viewBox="0 0 16 16" width="17" height="17" aria-hidden="true"><circle cx="7" cy="7" r="4.4" fill="none" stroke="currentColor" stroke-width="1.3"/><path stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="m10.4 10.4 3.1 3.1"/></svg>
+          <span data-i18n="sidebarSearch">搜索</span><span class="kbd">Ctrl+K</span>
+        </button>
+        <button type="button" class="side-item" id="sideMarket" data-i18n-title="sidebarPlugins" data-i18n-aria="sidebarPlugins" title="插件" aria-label="插件">
+          <svg viewBox="0 0 16 16" width="17" height="17" aria-hidden="true"><rect x="2" y="6" width="4" height="4" rx="1" fill="currentColor"/><rect x="6" y="2" width="4" height="4" rx="1" fill="currentColor"/><rect x="10" y="6" width="4" height="4" rx="1" fill="currentColor"/><rect x="6" y="10" width="4" height="4" rx="1" fill="currentColor"/></svg>
+          <span data-i18n="sidebarPlugins">插件</span>
+        </button>
+        <button type="button" class="side-item" id="sideAutomations" data-i18n-title="sidebarAutomation" data-i18n-aria="sidebarAutomation" title="自动化" aria-label="自动化">
+          <svg viewBox="0 0 16 16" width="17" height="17" aria-hidden="true"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.4v3.9l2.6 1.5M5.7 1.6h4.6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span data-i18n="sidebarAutomation">自动化</span>
+        </button>
+      </nav>
+      <div class="workspace">
+        <div class="workspace-head">
+          <label data-i18n="workspace">Workspace</label>
+          <button type="button" class="icon-btn" id="pickCwd" data-i18n-title="pickFolder" title="Change folder">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M2 3.75A1.75 1.75 0 0 1 3.75 2h2.88c.4 0 .78.16 1.06.44L8.81 3.56c.1.1.23.15.37.15h3.07A1.75 1.75 0 0 1 14 5.46v6.79A1.75 1.75 0 0 1 12.25 14H3.75A1.75 1.75 0 0 1 2 12.25V3.75z"/></svg>
+          </button>
+        </div>
+        <div class="path" id="cwd">-</div>
+      </div>
+      <div class="sessions" id="sessions"></div>
+      <div class="sidebar-foot">
+        <button type="button" class="user-card" id="userCard" data-i18n-title="accountTab" data-i18n-aria="accountTab" title="账号" aria-label="账号" aria-haspopup="menu" aria-controls="userMenu" aria-expanded="false">
+          <span class="avatar" id="userAvatar" aria-hidden="true"><span class="grok-mark"></span></span>
+          <span class="user-meta"><b id="userName">未登录</b></span>
+          <span class="user-card-chevron" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="m2.2 4.2 3.8 3.8 3.8-3.8"/></svg></span>
+        </button>
+      </div>
+    </aside>
+    <div class="split" id="splitSidebar" role="separator" aria-orientation="vertical"></div>
+
+    <header class="chrome" id="chrome">
+      <div class="navigation-controls" role="group" data-i18n-aria="appNavigation" aria-label="应用导航">
+        <button type="button" class="iconbtn-panel" id="toggleSidebar" data-i18n-title="sidebarToggle" data-i18n-aria="sidebarToggle" title="切换侧栏" aria-label="切换侧栏">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="2" y="3" width="4.5" height="10" rx="1" fill="currentColor" opacity=".9"/><rect x="8" y="3" width="6" height="10" rx="1" fill="currentColor" opacity=".35"/></svg>
+        </button>
+        <button type="button" class="iconbtn-panel" id="navBack" data-i18n-title="navBack" data-i18n-aria="navBack" title="后退" aria-label="后退" disabled>
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M9.8 3.2 5 8l4.8 4.8M5.4 8h7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="iconbtn-panel" id="navForward" data-i18n-title="navForward" data-i18n-aria="navForward" title="前进" aria-label="前进" disabled>
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="m6.2 3.2 4.8 4.8-4.8 4.8M10.6 8h-7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="chrome-main">
+        <div class="session-title-wrap">
+          <h1 id="sessionTitle" data-i18n="newChat">New chat</h1>
+          <button type="button" class="folder-pill" id="folderPill" data-i18n-title="pickFolder" title="更换文件夹">
+            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M2 3.75A1.75 1.75 0 0 1 3.75 2h2.88c.4 0 .78.16 1.06.44L8.81 3.56c.1.1.23.15.37.15h3.07A1.75 1.75 0 0 1 14 5.46v6.79A1.75 1.75 0 0 1 12.25 14H3.75A1.75 1.75 0 0 1 2 12.25V3.75z"/></svg>
+            <span id="folderPillName">-</span>
+          </button>
+          <button type="button" class="pill-btn" id="titleMore" data-i18n-title="moreActions" title="更多">⋯</button>
+        </div>
+        <div id="chromeCluster" class="cluster">
+          <div id="modeCluster" class="mode-cluster">
+            <div class="seg" role="tablist">
+              <button type="button" data-work="agent" aria-pressed="true" data-i18n="workAgent">执行</button>
+              <button type="button" data-work="plan" aria-pressed="false" data-i18n="workPlan">计划</button>
+              <button type="button" data-work="goal" aria-pressed="false" data-i18n="workGoal">目标</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="top-right" id="chromeRight">
+        <div class="launch-group">
+          <button type="button" class="launch-btn" id="launchVscode" data-i18n-title="openVscode" title="在 VS Code 中打开项目">
+            <img src="/static/vscode-logo.png?v=1" width="18" height="18" alt="">
+          </button>
+          <button type="button" class="launch-chev" id="launchChev" data-i18n-title="openWith" title="选择打开方式"><svg width="10" height="10" viewBox="0 0 12 12"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="M2.5 4.5 6 8l3.5-3.5"/></svg></button>
+        </div>
+        <button type="button" class="iconbtn-panel" id="togglePreview" data-i18n-title="preview" data-i18n-aria="preview" title="预览面板">
+          <svg width="15" height="15" viewBox="0 0 16 16"><rect x="1.8" y="2.8" width="12.4" height="10.4" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M9.6 3.2v9.6" stroke="currentColor" stroke-width="1.2"/><rect x="10.4" y="3.2" width="3.4" height="9.6" rx="0.6" fill="currentColor" opacity=".28"/></svg>
+        </button>
+        <button type="button" class="ghost chrome-settings" id="openSettingsChrome" data-i18n="settings">Settings</button>
+      </div>
+      <div class="drag-strip pywebview-drag-region" id="dragStrip" title=""></div>
+      <div class="win-controls" id="winControls">
+        <button type="button" data-i18n-title="windowMenu" data-i18n-aria="windowMenu" title="菜单" id="winChevron"><svg width="12" height="12" viewBox="0 0 12 12"><path fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="M2.5 4.5 6 8l3.5-3.5"/></svg></button>
+        <button type="button" data-i18n-title="windowMinimize" data-i18n-aria="windowMinimize" title="最小化" onclick="pywebview.api.win_min()"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 6h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+        <button type="button" data-i18n-title="windowMaximize" data-i18n-aria="windowMaximize" title="最大化 / 还原" id="winMaxBtn" onclick="winToggleMax()"><svg id="winMaxIcon" width="12" height="12" viewBox="0 0 12 12"><rect x="2.5" y="2.5" width="7" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></button>
+        <button type="button" class="close" data-i18n-title="windowClose" data-i18n-aria="windowClose" title="关闭" onclick="pywebview.api.win_close()"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></button>
+      </div>
+    </header>
+
+    <section class="main" id="main">
+      <nav class="thread-outline" id="chatOutline" hidden aria-label=""></nav>
+      <div class="thread" id="thread"></div>
+      <div class="dock" id="dock">
+        <div class="todo-dock" id="todoDock" hidden>
+          <button type="button" class="todo-dock-head" id="todoDockToggle" aria-expanded="false" aria-controls="todoDockBody">
+            <span class="todo-dock-icon" aria-hidden="true"><svg viewBox="0 0 16 16" width="15" height="15"><path fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" d="M5.5 4h7M5.5 8h7M5.5 12h7M2.7 4h.1M2.7 8h.1M2.7 12h.1"/></svg></span>
+            <span id="todoDockLabel" class="todo-dock-label"></span>
+            <svg class="chev" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="currentColor" d="M4.2 6.3 8 10l3.8-3.7.9.9L8 11.8 3.3 7.2z"/></svg>
+          </button>
+          <div class="todo-dock-body" id="todoDockBody"></div>
+        </div>
+        <form class="composer" id="composer">
+          <div class="palette" id="palette"></div>
+          <div class="box">
+            <div class="attach-strip" id="attachStrip" hidden></div>
+            <textarea id="input" rows="2" placeholder="给 Grok 发消息…"></textarea>
+            <div class="bar" id="composerBar">
+              <input type="file" id="filePick" hidden multiple accept="image/*,.png,.jpg,.jpeg,.gif,.webp">
+              <div class="composer-add" id="composerAdd">
+                <button type="button" class="icon-btn attach" id="attachBtn" data-i18n-title="attach" aria-haspopup="menu" aria-expanded="false" title="附加文件">
+                  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 3v10M3 8h10"/></svg>
+                </button>
+                <div class="composer-add-menu" id="composerAddMenu" hidden role="menu"></div>
+              </div>
+              <div class="permission-pick" id="permissionPick">
+                <button type="button" class="permission-trigger" id="permissionBtn" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="permission-trigger-icon" id="permissionTriggerIcon" aria-hidden="true"></span>
+                  <span id="permissionLabel" data-i18n="permAsk">询问</span>
+                  <svg class="permission-chevron" viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="m2.5 4.5 3.5 3 3.5-3"/></svg>
+                </button>
+                <div class="permission-pop" id="permissionPop" hidden role="listbox"></div>
+              </div>
+              <div class="work-mode-notice" id="workModeNotice" hidden role="status" aria-live="polite">
+                <span class="work-mode-notice-icon" id="workModeNoticeIcon" aria-hidden="true"></span>
+                <span class="work-mode-notice-copy" id="workModeNoticeText"></span>
+                <button type="button" class="work-mode-notice-close" id="workModeNoticeClose" aria-label="关闭计划模式">×</button>
+              </div>
+              <div id="composerCluster" class="composer-cluster"></div>
+              <span class="hint" id="composerHint"></span>
+              <span class="bar-spacer"></span>
+              <span class="context-usage" id="contextUsage" hidden tabindex="0" role="img" aria-describedby="contextUsageTooltip">
+                <svg class="context-usage-ring" viewBox="0 0 16 16" aria-hidden="true">
+                  <circle class="context-usage-track" cx="8" cy="8" r="6.25" pathLength="100"></circle>
+                  <circle class="context-usage-progress" cx="8" cy="8" r="6.25" pathLength="100" stroke-dasharray="0 100"></circle>
+                </svg>
+                <span class="context-usage-percent"></span>
+                <span class="context-usage-tooltip" id="contextUsageTooltip" role="tooltip"></span>
+              </span>
+              <div class="model-effort-control" id="modelEffortControl" aria-label="模型与推理强度">
+                <button type="button" class="model-switch-trigger" id="modelBtn" aria-haspopup="listbox" aria-expanded="false">
+                  <span id="modelLabel">grok-4.7</span>
+                </button>
+                <button type="button" class="effort-switch-trigger" id="effortBtn" aria-haspopup="dialog" aria-expanded="false">
+                  <span id="effortLabel">high</span>
+                  <svg class="model-effort-chevron" viewBox="0 0 12 12" width="10" height="10" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="m2.5 4.5 3.5 3 3.5-3"/></svg>
+                </button>
+                <div class="pick-pop" id="effortPop" hidden role="dialog"></div>
+                <div class="pick-pop" id="modelPop" hidden role="listbox"></div>
+              </div>
+              <button type="button" class="icon-btn voice-btn" id="voiceBtn" data-i18n-title="voiceStart" data-i18n-aria="voiceStart" title="语音输入" aria-label="语音输入" aria-pressed="false" aria-busy="false">
+                <svg viewBox="0 0 20 20" width="17" height="17" aria-hidden="true"><rect x="7" y="2.5" width="6" height="10" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 9.5a5.5 5.5 0 0 0 11 0M10 15v2.5m-3 0h6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </button>
+              <button type="submit" class="primary send" id="sendBtn" data-i18n-title="send" data-i18n-aria="send" title="Send" aria-busy="false">
+                <span class="send-label" data-i18n="send">Send</span>
+                <svg class="send-icon send-icon-up" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 2.4 3.6 6.8l.9.9L7.25 5v8.6h1.5V5l2.75 2.7.9-.9z"/></svg>
+                <svg class="send-icon send-icon-pause" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><rect x="4.1" y="3.2" width="2.5" height="9.6" rx=".7" fill="currentColor"/><rect x="9.4" y="3.2" width="2.5" height="9.6" rx=".7" fill="currentColor"/></svg>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <section class="market-back" id="marketBack" aria-labelledby="marketTitle">
+        <div class="market-page">
+          <div class="market-head">
+            <div>
+              <h2 id="marketTitle" data-i18n="marketTitle">插件市场</h2>
+              <p class="market-sub" data-i18n="marketLead">用插件为 Grok Build 扩展技能、命令与 MCP 能力</p>
+            </div>
+            <div class="market-tools">
+              <button type="button" class="market-add-btn" id="mkAddSource"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M8 3v10M3 8h10"/></svg><span data-i18n="marketAddSource">添加第三方市场</span></button>
+              <button type="button" class="market-icon-btn" id="mkReload" data-i18n-title="marketRefresh" data-i18n-aria="marketRefresh" title="刷新插件市场" aria-label="刷新插件市场"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" d="M12.8 6.2A5.1 5.1 0 1 0 13 9.8M12.8 2.8v3.5H9.3"/></svg></button>
+              <button type="button" class="market-icon-btn" id="mkClose" data-i18n-title="marketClose" data-i18n-aria="marketClose" title="返回对话" aria-label="返回对话"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="m4.2 4.2 7.6 7.6m0-7.6-7.6 7.6"/></svg></button>
+            </div>
+          </div>
+          <input type="search" id="mkSearch" class="market-search" data-i18n-placeholder="marketSearch" placeholder="搜索插件">
+          <div class="market-section"><b data-i18n="marketInstalled">已安装</b><div id="mkInstalled" class="mk-installed" data-market-status="loading" data-i18n="marketLoading">加载中…</div></div>
+          <div class="mk-tabs" id="mkTabs"></div>
+          <div id="mkList" class="mk-grid" data-i18n="marketLoading">加载中…</div>
+        </div>
+      </section>
+      <section class="market-back automation-back" id="automationBack" aria-labelledby="automationTitle" aria-hidden="true">
+        <div class="market-page automation-page">
+          <div class="automation-main">
+            <header class="automation-topbar">
+              <div class="automation-page-heading">
+                <h2 id="automationTitle" data-i18n="automationTitle">自动化任务</h2>
+                <p class="market-sub" id="automationSource"></p>
+              </div>
+              <div class="automation-topbar-actions">
+                <button type="button" class="primary automation-create-cta" id="automationNewTask">
+                  <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="M8 3v10M3 8h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  <span data-i18n="automationCreateTitle">新建自动化任务</span>
+                </button>
+                <button type="button" class="market-icon-btn" id="automationRefresh" data-i18n-title="automationRefresh" data-i18n-aria="automationRefresh" title="刷新记录" aria-label="刷新记录"><svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round" d="M12.8 6.2A5.1 5.1 0 1 0 13 9.8M12.8 2.8v3.5H9.3"/></svg></button>
+                <button type="button" class="market-icon-btn" id="automationClose" data-i18n-title="automationBack" data-i18n-aria="automationBack" title="返回对话" aria-label="返回对话"><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="m4.2 4.2 7.6 7.6m0-7.6-7.6 7.6"/></svg></button>
+              </div>
+            </header>
+            <div class="automation-home" id="automationHome">
+              <div class="automation-welcome">
+                <svg class="automation-clock" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="25" r="15" fill="none" stroke="currentColor" stroke-width="3.2"/><path d="M24 16v9l6 4M18 5h12" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <h3 data-i18n="automationWelcomeTitle">安排任务</h3>
+                <p data-i18n="automationWelcomeLead">让 Grok Runtime 按计划在对话中执行任务。</p>
+              </div>
+              <section class="automation-templates" aria-labelledby="automationTemplatesTitle">
+                <div class="automation-templates-head">
+                  <h3 id="automationTemplatesTitle" data-i18n="automationTemplatesTitle">从一个常用任务开始</h3>
+                  <p data-i18n="automationTemplatesLead">选择模板后可继续编辑任务指令和执行频率。</p>
+                </div>
+                <div class="automation-template-grid">
+                  <button type="button" class="automation-template" data-automation-prompt="automationTemplatePromptDaily">
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="13" rx="2.5"/><path d="M6.5 2.5v3M13.5 2.5v3M3.5 8h13M6.5 11h2M11.5 11h2M6.5 14h2"/></svg>
+                    <span><b data-i18n="automationTemplateDaily">每日项目摘要</b><small data-i18n="automationTemplateDailyHelp">定时整理项目中的重要进展</small></span>
+                  </button>
+                  <button type="button" class="automation-template" data-automation-prompt="automationTemplatePromptWeekly">
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 3.5h8l4 4v9H4zM12 3.5v4h4M7 10h6M7 13h6"/></svg>
+                    <span><b data-i18n="automationTemplateWeekly">每周研究简报</b><small data-i18n="automationTemplateWeeklyHelp">按周汇总指定主题的新进展</small></span>
+                  </button>
+                  <button type="button" class="automation-template" data-automation-prompt="automationTemplatePromptCheck">
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m12.5 12.5 4 4M8.5 5.5v3h2.2"/></svg>
+                    <span><b data-i18n="automationTemplateCheck">定时检查项目</b><small data-i18n="automationTemplateCheckHelp">周期性检查指定文件或状态</small></span>
+                  </button>
+                  <button type="button" class="automation-template" data-automation-prompt="automationTemplatePromptReminder">
+                    <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M6 14h8l-1.2-1.7V8a2.8 2.8 0 0 0-5.6 0v4.3zM8.5 16h3"/></svg>
+                    <span><b data-i18n="automationTemplateReminder">定时提醒</b><small data-i18n="automationTemplateReminderHelp">在指定时间提醒我处理一件事</small></span>
+                  </button>
+                </div>
+              </section>
+              <section class="automation-records" aria-labelledby="automationListTitle">
+                <div class="automation-records-head">
+                  <div class="automation-records-title">
+                    <h3 id="automationListTitle" data-i18n="automationListTitle">任务记录</h3>
+                    <span id="automationCount" class="automation-count"></span>
+                  </div>
+                  <label class="automation-search-wrap">
+                    <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><circle cx="7" cy="7" r="4.4" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="m10.4 10.4 3.1 3.1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                    <input type="search" id="automationSearch" data-i18n-placeholder="automationSearch" data-i18n-aria="automationSearch" placeholder="搜索任务记录" aria-label="搜索任务记录">
+                  </label>
+                </div>
+                <div class="automation-list" id="automationList" aria-live="polite"></div>
+                <p class="automation-note" data-i18n="automationHistoryNote">这里汇总各对话的 Runtime 任务创建与取消记录，不是实时活动任务列表。</p>
+              </section>
+            </div>
+            <section class="automation-create-view" id="automationCreateView" hidden aria-labelledby="automationCreateTitle">
+              <button type="button" class="automation-back-home" id="automationBackHome">
+                <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path d="m10 3-5 5 5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span data-i18n="automationBackHome">返回任务</span>
+              </button>
+              <h3 id="automationCreateTitle" data-i18n="automationCreateTitle">新建自动化任务</h3>
+              <form class="automation-form" id="automationForm">
+                <label class="automation-field" for="automationPrompt">
+                  <span data-i18n="automationPromptLabel">任务指令</span>
+                  <textarea id="automationPrompt" rows="5" maxlength="4000" required data-i18n-placeholder="automationPromptPlaceholder" placeholder="描述 Grok Runtime 定时执行的任务"></textarea>
+                </label>
+                <div class="automation-form-options">
+                  <div class="automation-field automation-interval-field">
+                    <span id="automationIntervalLabel" data-i18n="automationIntervalLabel">执行间隔</span>
+                    <div class="automation-interval-select" id="automationIntervalSelect">
+                      <button type="button" class="lang-btn automation-interval-trigger" id="automationIntervalTrigger" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-controls="automationIntervalMenu" aria-labelledby="automationIntervalLabel automationIntervalValue">
+                        <span id="automationIntervalValue">每 5 分钟</span>
+                        <svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" d="M2.2 4.2 6 8l3.8-3.8"/></svg>
+                      </button>
+                      <div class="lang-pop automation-interval-menu" id="automationIntervalMenu" role="listbox" aria-labelledby="automationIntervalLabel" hidden>
+                        <button type="button" role="option" tabindex="-1" id="automationIntervalOption5m" data-interval-value="5m" aria-selected="true" data-i18n="automationEvery5m">每 5 分钟</button>
+                        <button type="button" role="option" tabindex="-1" id="automationIntervalOption30m" data-interval-value="30m" aria-selected="false" data-i18n="automationEvery30m">每 30 分钟</button>
+                        <button type="button" role="option" tabindex="-1" id="automationIntervalOption1h" data-interval-value="1h" aria-selected="false" data-i18n="automationEvery1h">每小时</button>
+                        <button type="button" role="option" tabindex="-1" id="automationIntervalOption2h" data-interval-value="2h" aria-selected="false" data-i18n="automationEvery2h">每 2 小时</button>
+                        <button type="button" role="option" tabindex="-1" id="automationIntervalOption1d" data-interval-value="1d" aria-selected="false" data-i18n="automationEvery1d">每天</button>
+                      </div>
+                    </div>
+                    <input type="hidden" id="automationInterval" value="5m">
+                  </div>
+                  <label class="automation-repeat">
+                    <input type="checkbox" id="automationRecurring" checked>
+                    <span data-i18n="automationRepeatLabel">重复执行</span>
+                  </label>
+                </div>
+                <button type="submit" class="primary automation-submit" data-i18n="automationCreate">创建任务</button>
+              </form>
+            </section>
+          </div>
+        </div>
+      </section>
+    </section>
+    <div class="split" id="splitPreview" role="separator" aria-orientation="vertical"></div>
+    <aside class="preview extension-panel" id="preview" data-i18n-aria="extensionPanel">
+      <div class="extension-panel-head">
+        <div class="extension-head-title">
+          <span class="extension-head-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 9V5h4M15 5h4v4M19 15v4h-4M9 19H5v-4"/></svg>
+          </span>
+          <b data-i18n="extensionPanel">扩展菜单</b>
+        </div>
+        <button type="button" class="extension-head-control" id="collapsePreview" data-i18n-title="closeExtensionPanel" data-i18n-aria="closeExtensionPanel">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 12h12"/></svg>
+        </button>
+      </div>
+      <nav class="extension-launcher" aria-label="扩展菜单" data-i18n-aria="extensionPanel">
+        <p class="extension-launcher-label" data-i18n="extensionLauncherLabel">快速打开</p>
+        <button type="button" class="extension-launcher-item" data-extension="side-chat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/></svg>
+          <span data-i18n="extensionSideChat">侧边聊天</span><kbd>Ctrl+Alt+S</kbd>
+        </button>
+        <button type="button" class="extension-launcher-item" data-extension="terminal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="3"/><path d="m8 10 2 2-2 2M12.5 15h3"/></svg>
+          <span data-i18n="extensionTerminal">终端</span><kbd>Ctrl+\\</kbd>
+        </button>
+      </nav>
+      <section class="extension-surface" id="extensionSurface" hidden>
+        <header class="extension-surface-head">
+          <button type="button" class="extension-back" id="extensionBack" data-i18n-title="extensionBack" data-i18n-aria="extensionBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m14 6-6 6 6 6"/></svg></button>
+          <b id="extensionTitle"></b>
+        </header>
+        <form class="side-chat-form" id="sideChatForm" hidden>
+          <div class="side-chat-messages" id="sideChatMessages"></div>
+          <textarea id="sideChatInput" rows="3" data-i18n-placeholder="sideChatPlaceholder" placeholder="向 Grok 提问"></textarea>
+          <button type="submit" class="primary" id="sideChatSend" data-i18n="sideChatSend">发送</button>
+        </form>
+        <section class="terminal-form" id="terminalForm" hidden data-i18n-aria="extensionTerminal" aria-label="终端">
+          <div class="terminal-toolbar">
+            <span class="terminal-status" id="terminalStatus" role="status" data-i18n="terminalStarting">正在启动终端…</span>
+            <div class="terminal-toolbar-actions">
+              <button type="button" class="ghost" id="terminalRetry" data-i18n="terminalRetry" hidden>重试</button>
+              <button type="button" class="ghost" id="terminalInterrupt" data-i18n="terminalStop">停止</button>
+              <button type="button" class="ghost" id="terminalClose" data-i18n="terminalClose">关闭终端</button>
+            </div>
+          </div>
+          <pre class="terminal-output" id="terminalOutput" tabindex="0" aria-live="polite"></pre>
+          <form class="terminal-input-row" id="terminalInputForm">
+            <textarea id="terminalInput" rows="2" data-i18n-placeholder="terminalPlaceholder" placeholder="输入命令，按 Enter 执行"></textarea>
+            <button type="submit" class="primary" data-i18n="terminalSend">发送</button>
+          </form>
+          <p class="terminal-input-hint" data-i18n="terminalInputHint">支持实时输出、输入、调整尺寸和停止进程。</p>
+        </section>
+      </section>
+    </aside>
+  </div>
+
+  <div class="drawer-back settings-screen" id="settingsBack" aria-hidden="true">
+    <aside class="drawer settings-shell" id="settings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="settings-topbar">
+        <div class="settings-drag-strip pywebview-drag-region" id="settingsDragStrip" aria-hidden="true"></div>
+        <div class="settings-topbar-actions">
+          <button type="button" class="icon-btn close-x settings-dismiss" id="closeSettingsIcon" data-i18n-title="settingsReturn" data-i18n-aria="settingsReturn" title="返回应用" aria-label="返回应用">
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="m4 4 8 8M12 4l-8 8"/></svg>
+          </button>
+          <div class="settings-window-controls" data-i18n-aria="windowControls" aria-label="窗口控制">
+            <button type="button" id="settingsWinMin" data-i18n-title="windowMinimize" data-i18n-aria="windowMinimize" title="最小化" aria-label="最小化" onclick="pywebview.api.win_min()">
+              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </button>
+            <button type="button" id="settingsWinMax" data-i18n-title="windowMaximize" data-i18n-aria="windowMaximize" title="最大化 / 还原" aria-label="最大化 / 还原" onclick="winToggleMax()">
+              <svg id="settingsWinMaxIcon" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x="2.5" y="2.5" width="7" height="7" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>
+            </button>
+            <button type="button" id="settingsWinClose" class="window-close" data-i18n-title="windowClose" data-i18n-aria="windowClose" title="关闭" aria-label="关闭" onclick="pywebview.api.win_close()">
+              <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <nav class="settings-nav">
+        <div class="settings-nav-header">
+          <h2 data-i18n="settings">设置</h2>
+          <div class="settings-search-wrap">
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="7" cy="7" r="4.4" fill="none" stroke="currentColor" stroke-width="1.3"/><path stroke="currentColor" stroke-width="1.3" stroke-linecap="round" d="m10.4 10.4 3.1 3.1"/></svg>
+            <input type="search" id="settingsSearch" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="settingsSearchResults" data-i18n-placeholder="settingsSearch" placeholder="搜索设置…">
+            <div class="settings-search-results" id="settingsSearchResults" role="listbox" aria-live="polite" hidden></div>
+          </div>
+        </div>
+        <button type="button" class="settings-return" id="closeSettings">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="m9.8 3.3-4.5 4.7 4.5 4.7M5.8 8h5.7"/></svg>
+          <span data-i18n="settingsReturn">返回应用</span>
+        </button>
+        <div class="settings-tabs" id="settingsTabs">
+          <div class="nav-group" data-i18n="navAcct">账号</div>
+          <button type="button" data-stab="account" aria-selected="false"><span class="settings-nav-icon" data-ico="user" aria-hidden="true"></span><span data-i18n="accountTab">账号</span></button>
+          <div class="nav-group" data-i18n="navBasic">基础设置</div>
+          <button type="button" data-stab="general" aria-selected="true"><span class="settings-nav-icon" data-ico="sliders" aria-hidden="true"></span><span data-i18n="generalTab">常规</span></button>
+          <button type="button" data-stab="model"><span class="settings-nav-icon" data-ico="model" aria-hidden="true"></span><span data-i18n="modelTab">模型</span></button>
+          <button type="button" data-stab="interaction"><span class="settings-nav-icon" data-ico="terminal" aria-hidden="true"></span><span data-i18n="interactionTab">输入与交互</span></button>
+          <button type="button" data-stab="voice"><span class="settings-nav-icon" data-ico="mic" aria-hidden="true"></span><span data-i18n="voiceSettingsTitle">语音与识别</span></button>
+          <div class="nav-group" data-i18n="navRuntime">Grok Runtime</div>
+          <button type="button" data-stab="agent"><span class="settings-nav-icon" data-ico="shield" aria-hidden="true"></span><span data-i18n="agentTab">Agent 与权限</span></button>
+          <button type="button" data-stab="tools"><span class="settings-nav-icon" data-ico="wrench" aria-hidden="true"></span><span data-i18n="toolsTab">工具</span></button>
+          <button type="button" data-stab="memory"><span class="settings-nav-icon" data-ico="brain" aria-hidden="true"></span><span data-i18n="memoryTab">记忆</span></button>
+          <button type="button" data-stab="git"><span class="settings-nav-icon" data-ico="branch" aria-hidden="true"></span><span data-i18n="gitTab">Git 与 Worktree</span></button>
+          <div class="nav-group" data-i18n="navExt">扩展</div>
+          <button type="button" data-stab="mcp"><span class="settings-nav-icon" data-ico="server" aria-hidden="true"></span><span data-i18n="mcpTab">MCP 服务器</span></button>
+          <button type="button" data-stab="plugins"><span class="settings-nav-icon" data-ico="market" aria-hidden="true"></span><span data-i18n="pluginsTab">插件</span></button>
+          <button type="button" data-stab="skills"><span class="settings-nav-icon" data-ico="spark" aria-hidden="true"></span><span data-i18n="skillsTab">Skill</span></button>
+          <div class="nav-group" data-i18n="navData">数据与统计</div>
+          <button type="button" data-stab="usage"><span class="settings-nav-icon" data-ico="chart" aria-hidden="true"></span><span data-i18n="usage">用量</span></button>
+          <button type="button" data-stab="archive"><span class="settings-nav-icon" data-ico="archive" aria-hidden="true"></span><span data-i18n="archive">归档</span></button>
+          <button type="button" data-stab="commands"><span class="settings-nav-icon" data-ico="terminal" aria-hidden="true"></span><span data-i18n="commands">命令</span></button>
+          <div class="nav-group" data-i18n="navSystem">系统</div>
+          <button type="button" data-stab="privacy"><span class="settings-nav-icon" data-ico="shield" aria-hidden="true"></span><span data-i18n="privacyTab">数据与隐私</span></button>
+          <div class="nav-group" data-i18n="navHelp">帮助</div>
+          <button type="button" data-stab="help"><span class="settings-nav-icon" data-ico="help" aria-hidden="true"></span><span data-i18n="help">使用指南</span></button>
+        </div>
+      </nav>
+      <div class="settings-main">
+        <header class="settings-main-head">
+          <div>
+            <h1 id="settingsTitle" data-i18n="settings">设置</h1>
+            <p id="settingsLead"></p>
+          </div>
+        </header>
+        <div class="settings-body" id="settingsBody"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="cmdk-back" id="cmdkBack">
+    <div class="cmdk">
+      <input type="text" id="cmdkInput" data-i18n-placeholder="commandSearch" placeholder="搜索操作、任务或文件" autocomplete="off">
+      <div class="cmdk-tabs">
+        <button type="button" class="on" data-ctab="all" data-i18n="commandAll">全部</button>
+        <button type="button" data-ctab="actions" data-i18n="ops">操作</button>
+        <button type="button" data-ctab="sessions" data-i18n="chats">会话</button>
+      </div>
+      <div class="cmdk-list" id="cmdkList"></div>
+    </div>
+  </div>
+
+  <div class="session-menu user-pop" id="userMenu" hidden>
+    <div class="user-pop-head">
+      <b id="umName">Grok</b>
+    </div>
+    <button type="button" id="umLogin" data-uact="login" hidden><span class="mi" data-ico="user"></span><span data-i18n="accountLogin">登录 Grok 账号</span></button>
+    <pre class="cli-pre user-login-output" id="umLoginOut" hidden></pre>
+    <div class="user-pop-divider" id="umLoginDivider" role="separator" hidden></div>
+    <button type="button" data-uact="settings"><span class="mi" data-ico="gear"></span><span data-i18n="settings">设置</span></button>
+    <button type="button" data-uact="language"><span class="mi" data-ico="globe"></span><span data-i18n="language">语言</span></button>
+    <button type="button" data-uact="inference"><span class="mi" data-ico="sliders"></span><span data-i18n="accountMenuInference">推理配置</span></button>
+    <div class="user-pop-divider" role="separator"></div>
+    <button type="button" data-uact="guide"><span class="mi" data-ico="help"></span><span data-i18n="accountMenuLearnMore">了解更多</span></button>
+    <button type="button" data-uact="about"><span class="mi" data-ico="info"></span><span data-i18n="accountMenuAbout">关于</span></button>
+    <div class="user-pop-divider" id="umLogoutDivider" role="separator" hidden></div>
+    <button type="button" id="umLogout" data-uact="logout" hidden><span class="mi" data-ico="logout"></span><span data-i18n="accountLogout">退出登录</span></button>
+  </div>
+
+  <dialog class="language-dialog" id="languageDialog" aria-labelledby="languageDialogTitle">
+    <header class="language-dialog-head">
+      <h2 id="languageDialogTitle" data-i18n="languageDialogTitle">选择语言</h2>
+      <button type="button" class="icon-btn" id="languageDialogClose" data-i18n-title="close" data-i18n-aria="close" title="关闭" aria-label="关闭">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="m4 4 8 8m0-8-8 8"/></svg>
+      </button>
+    </header>
+    <div class="language-grid" id="languageGrid" role="radiogroup" data-i18n-aria="language" aria-label="语言"></div>
+  </dialog>
+
+  <dialog class="about-dialog" id="aboutDialog" aria-labelledby="aboutDialogTitle">
+    <header class="about-dialog-head">
+      <h2 id="aboutDialogTitle" data-i18n="accountMenuAbout">关于</h2>
+      <button type="button" class="icon-btn" id="aboutDialogClose" data-i18n-title="close" data-i18n-aria="close" title="关闭" aria-label="关闭">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="m4 4 8 8m0-8-8 8"/></svg>
+      </button>
+    </header>
+    <div class="about-dialog-brand">
+      <div class="brand-lockup">
+        <img class="brand-wordmark" src="/static/grok-build-wordmark-reference.png?v=1" width="874" height="166" alt="Grok Build">
+        <span class="brand-badge">WebUI</span>
+      </div>
+      <span class="about-dialog-version">V1.0.0</span>
+    </div>
+    <div class="about-dialog-copy">
+      <p data-i18n="accountAboutProject">为本机 Grok Build CLI 提供桌面 WebUI，用于管理项目文件夹、对话、任务审批和运行设置。</p>
+      <p data-i18n="accountAboutIntro">Grok Build WebUI 是独立第三方界面，并非 xAI 官方 Grok Build 桌面版或 WebUI，也未获 xAI 认可或赞助。</p>
+      <p data-i18n="accountAboutMarks">“Grok”“xAI”及相关名称与标识归其各自权利人所有；本项目不主张其权利。</p>
+      <p data-i18n="accountAboutCopyright">© 2026 Grok Build WebUI 项目贡献者。项目原创代码与界面的权利归贡献者所有，第三方组件遵循各自许可证。</p>
+      <p><span data-i18n="accountAboutAuthorLabel">项目作者</span> <a href="https://github.com/Alan-su712" target="_blank" rel="noopener noreferrer">Alan-su712</a></p>
+      <p><span data-i18n="accountAboutRepositoryLabel">项目仓库</span> <a href="https://github.com/Alan-su712/Grok-build-webui" target="_blank" rel="noopener noreferrer">github.com/Alan-su712/Grok-build-webui</a></p>
+      <a href="https://x.ai/legal/brand-guidelines" target="_blank" rel="noopener noreferrer" data-i18n="accountAboutBrandGuidelines">Grok 品牌指南</a>
+    </div>
+  </dialog>
+
+  <dialog class="onboarding-dialog" id="onboardingDialog" aria-labelledby="onboardingTitle">
+    <header class="onboarding-head">
+      <div class="brand-lockup">
+        <img class="brand-wordmark" src="/static/grok-build-wordmark-reference.png?v=1" width="874" height="166" alt="Grok Build">
+        <span class="brand-badge">WebUI</span>
+      </div>
+      <button type="button" class="ghost onboarding-skip" id="onboardingSkip" data-i18n="onboardingSkip">跳过引导</button>
+    </header>
+    <div class="onboarding-intro">
+      <h2 id="onboardingTitle" data-i18n="onboardingTitle">欢迎使用 Grok Build WebUI</h2>
+      <p data-i18n="onboardingLead">完成几项基础检查，选择接入方式后即可开始。</p>
+    </div>
+    <div class="onboarding-progress" role="group" aria-labelledby="onboardingStepCount">
+      <span id="onboardingStepCount" aria-live="polite">第 1 步，共 3 步</span>
+      <div class="onboarding-progress-track" aria-hidden="true"><span id="onboardingProgressFill"></span></div>
+    </div>
+    <section class="onboarding-content" id="onboardingContent" aria-live="polite"></section>
+    <footer class="onboarding-actions" id="onboardingActions"></footer>
+  </dialog>
+
+  <div class="session-menu" id="titleMenu" hidden>
+    <button type="button" data-tact="rename" data-i18n="rename">改名</button>
+    <button type="button" data-tact="fork" data-i18n="fork">分叉</button>
+    <button type="button" data-tact="export" data-i18n="export">导出</button>
+    <button type="button" data-tact="archive" data-i18n="archive">归档</button>
+  </div>
+
+  <div class="session-menu" id="chevMenu" hidden>
+    <button type="button" data-cact="settings" data-i18n="settings">设置</button>
+    <button type="button" data-cact="guide" data-i18n="help">使用指南</button>
+    <button type="button" data-cact="usage" data-i18n="usage">用量</button>
+  </div>
+
+  <div class="session-menu" id="openInMenu" hidden>
+    <button type="button" data-oact="explorer">
+      <span class="mi"><svg width="17" height="17" viewBox="0 0 20 20"><path fill="#e8a33d" d="M1.5 5.2c0-1 .8-1.8 1.8-1.8h4.2l1.9 2h7.3c1 0 1.8.8 1.8 1.8v1H1.5z"/><path fill="#ffc95e" d="M1.5 8.2h17v6.6c0 1-.8 1.8-1.8 1.8H3.3c-1 0-1.8-.8-1.8-1.8z"/></svg></span>
+      <span data-i18n="openExplorer">资源管理器</span><i class="ocheck" data-check="explorer"></i>
+    </button>
+    <button type="button" data-oact="vscode">
+      <span class="mi"><img src="/static/vscode-logo.png?v=1" width="20" height="20" alt=""></span>
+      <span>VS Code</span><i class="ocheck" data-check="vscode"></i>
+    </button>
+    <button type="button" data-oact="cursor">
+      <span class="mi"><svg width="17" height="17" viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="3.5" fill="#2c2c31"/><path fill="#4a4a52" d="M6 6.5 13.5 5v4.2L6 9.8z"/><path fill="#8f8f98" d="m6 13.5 7.5 1.5V10.6L6 10.2z"/><path fill="#d7d7dc" d="m13.5 5-3 2.6v4.8l3 2.6z"/></svg></span>
+      <span>Cursor</span><i class="ocheck" data-check="cursor"></i>
+    </button>
+    <button type="button" data-oact="terminal">
+      <span class="mi"><svg width="17" height="17" viewBox="0 0 20 20"><rect x="1.8" y="2.5" width="16.4" height="15" rx="2.5" fill="#1e1e22"/><path fill="none" stroke="#cfcfd6" stroke-width="1.4" stroke-linecap="round" d="m4.6 6.8 3 2.6-3 2.6"/><path fill="none" stroke="#cfcfd6" stroke-width="1.4" stroke-linecap="round" d="M9.4 12.6h5.4"/></svg></span>
+      <span data-i18n="openTerminal">终端</span><i class="ocheck" data-check="terminal"></i>
+    </button>
+  </div>
+
+  <div class="session-menu" id="sessionMenu" hidden>
+    <button type="button" data-act="rename" data-i18n="rename">Rename</button>
+    <button type="button" data-act="fork" data-i18n="fork">Fork</button>
+    <button type="button" data-act="archive" data-i18n="archive">Archive</button>
+  </div>
+
+  <div class="perm" id="perm">
+    <h3 data-i18n="permTitle">Grok wants to run an action</h3>
+    <p class="hint" id="permTitle"></p>
+    <pre id="permBody"></pre>
+    <div class="actions" id="permActions"></div>
+  </div>
+
+  <div class="modal-back" id="picker">
+    <div class="modal" role="dialog">
+      <h2 id="pickerTitle" data-i18n="pickTitle">Choose project folder</h2>
+      <div class="crumb" id="pickerPath"></div>
+      <div class="dir-list" id="pickerList"></div>
+      <div class="perm-actions">
+        <button type="button" class="ghost picker-native" id="pickerNative" data-i18n="pickSystemFolder" data-i18n-title="pickSystemFolder" data-i18n-aria="pickSystemFolder">使用系统文件资源管理器选择</button>
+        <button type="button" class="ghost" id="pickerUp" data-i18n="up">Up</button>
+        <button type="button" class="ghost" id="pickerCancel" data-i18n="cancel">Cancel</button>
+        <button type="button" class="primary" id="pickerOk" data-i18n="useFolder">Use this folder</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-back" id="confirm">
+    <div class="modal slim" role="dialog">
+      <h2 data-i18n="confirm">Confirm</h2>
+      <p id="confirmText"></p>
+      <div class="perm-actions">
+        <button type="button" class="ghost" id="confirmNo" data-i18n="cancel">Cancel</button>
+        <button type="button" class="danger" id="confirmYes" data-i18n="ok">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-back market-source-back" id="marketSourceDialog" aria-hidden="true">
+    <section class="market-source-dialog" role="dialog" aria-modal="true" aria-labelledby="marketSourceTitle" aria-describedby="marketSourceLead">
+      <header class="market-source-head">
+        <div>
+          <h2 id="marketSourceTitle" data-i18n="marketSourceTitle">添加第三方插件市场</h2>
+          <p id="marketSourceLead" data-i18n="marketSourceLead">添加公开的 marketplace.json 地址，之后可以在市场标签中浏览和安装插件。</p>
+        </div>
+        <button type="button" class="market-source-close" id="marketSourceClose" data-i18n-title="close" data-i18n-aria="close" aria-label="关闭">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="m4 4 8 8m0-8-8 8"/></svg>
+        </button>
+      </header>
+      <form id="marketSourceForm">
+        <label for="marketSourceName" data-i18n="marketSourceName">市场名称（可选）</label>
+        <input id="marketSourceName" type="text" maxlength="80" autocomplete="off" data-i18n-placeholder="marketSourceNamePlaceholder" placeholder="例如：团队插件市场">
+        <label for="marketSourceUrl" data-i18n="marketSourceUrl">清单地址</label>
+        <input id="marketSourceUrl" type="url" maxlength="2048" required inputmode="url" autocomplete="url" data-i18n-placeholder="marketSourceUrlPlaceholder" placeholder="https://example.com/marketplace.json">
+        <p class="market-source-help" data-i18n="marketSourceFormatHelp">支持 Claude Code marketplace.json，或包含 plugins / items 数组的 JSON。</p>
+        <p class="market-source-status" id="marketSourceStatus" role="status" hidden></p>
+        <div class="market-source-existing">
+          <div class="market-source-existing-head"><b data-i18n="marketSourceExisting">已添加的市场</b><span id="marketSourceCount"></span></div>
+          <div id="marketSourceList"></div>
+        </div>
+        <div class="perm-actions market-source-actions">
+          <button type="button" class="ghost" id="marketSourceCancel" data-i18n="cancel">取消</button>
+          <button type="submit" class="primary" id="marketSourceSubmit" data-i18n="marketSourceSave">添加市场</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="modal-back rename-back" id="renameDialog" aria-hidden="true">
+    <section class="rename-dialog" role="dialog" aria-modal="true" aria-labelledby="renameDialogTitle" aria-describedby="renameDialogHint">
+      <div class="rename-dialog-head">
+        <div>
+          <h2 id="renameDialogTitle" data-i18n="renameDialogTitle">改名</h2>
+          <p id="renameDialogHint" data-i18n="renameDialogHint">新名称会立即显示在侧栏和顶部。</p>
+        </div>
+        <button type="button" class="rename-close" id="renameClose" data-i18n-title="close" data-i18n-aria="close" aria-label="关闭改名面板" title="关闭">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" d="m4 4 8 8m0-8-8 8"/></svg>
+        </button>
+      </div>
+      <form id="renameForm">
+        <label for="renameInput" data-i18n="renameSessionLabel">会话名称</label>
+        <input id="renameInput" type="text" autocomplete="off" maxlength="160" required data-i18n-placeholder="renamePlaceholder" placeholder="输入会话名称">
+        <div class="rename-actions">
+          <button type="button" class="ghost" id="renameCancel" data-i18n="cancel">取消</button>
+          <button type="submit" class="primary" id="renameConfirm" data-i18n="renameSave">保存名称</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <script src="i18n.js?v=89"></script>
+  <script src="/help.js?v=25"></script>
+  <script src="app.js?v=141"></script>
+</body>
+</html>
