@@ -25,7 +25,7 @@ Python が `PATH` にない場合は、起動前に `$env:GROK_BUILD_PYTHON = "C
 
 ## Windows デスクトップ版の配布ファイル
 
-配布物には、ポータブル版 `GrokBuildWebUI.exe`、保存先フォルダーを選べるセットアッププログラム、コンパクトな ZIP が含まれます。ZIP にはポータブル版と 4 言語の説明書が入り、セットアップを重複して含めません。ポータブル版に Python や Node.js は不要ですが、ローカル Grok Build Runtime は別途インストールしてください。セットアップは保存先を選択し、スタートメニューにショートカットを作成します。Runtime はインストールしません。アプリ設定は `%USERPROFILE%\.grok\webui` に保存されます。
+配布物には、ポータブル版 `GrokBuildWebUI.exe`、保存先フォルダーを選べるセットアッププログラム、コンパクトな ZIP が含まれます。ZIP にはポータブル版と 4 言語の説明書が入り、セットアップを重複して含めません。ポータブル版に Python や Node.js は不要ですが、ローカル Grok Build Runtime と Microsoft Edge WebView2 Runtime が必要です。WebView2 がない場合は、[Microsoft の公式ダウンロードページ](https://developer.microsoft.com/microsoft-edge/webview2/)から Evergreen Runtime をインストールしてください。このセットアップはどちらの Runtime もインストールしません。セットアップでは保存先を選択し、スタートメニューにショートカットを作成します。アプリ設定は `%USERPROFILE%\.grok\webui` に保存されます。
 
 Windows x64 版を自分でビルドする場合：
 

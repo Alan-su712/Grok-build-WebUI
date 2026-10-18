@@ -59,7 +59,7 @@ py -3 -m pip install "pywinpty>=3,<4"
 
 ## Windows 桌面版发行文件
 
-发行文件包含独立运行的 `GrokBuildWebUI.exe`、目录选择式安装程序和一个精简 ZIP。ZIP 内含便携 EXE 与四种语言的说明文件，不重复塞入安装程序。独立 EXE 不需要安装 Python 或 Node.js，但仍需本机已安装 Grok Build Runtime。安装程序会询问目标文件夹，并在开始菜单创建快捷方式；它不会安装 Grok Runtime。应用设置保存在 `%USERPROFILE%\.grok\webui`。
+发行文件包含独立运行的 `GrokBuildWebUI.exe`、目录选择式安装程序和一个精简 ZIP。ZIP 内含便携 EXE 与四种语言的说明文件，不重复塞入安装程序。独立 EXE 不需要安装 Python 或 Node.js，但仍需本机已安装 Grok Build Runtime，并确保系统有 Microsoft Edge WebView2 Runtime；若缺少，可从 [微软官方下载页](https://developer.microsoft.com/microsoft-edge/webview2/) 安装 Evergreen Runtime。我们的安装程序不会安装 Grok Runtime 或 WebView2 Runtime。安装程序会询问目标文件夹，并在开始菜单创建快捷方式。应用设置保存在 `%USERPROFILE%\.grok\webui`。
 
 若要自行构建桌面发行文件，请在 Windows x64 上执行：
 

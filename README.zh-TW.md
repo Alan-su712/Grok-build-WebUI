@@ -25,7 +25,7 @@ grok-build-webui --open
 
 ## Windows 桌面版發行檔
 
-發行檔包含可直接執行的 `GrokBuildWebUI.exe`、可選擇安裝資料夾的安裝程式，以及精簡 ZIP。ZIP 內含便攜程式與四種語言的說明文件，不重複附上安裝程式。獨立程式不需要安裝 Python 或 Node.js，但仍須先安裝本機 Grok Build Runtime。安裝程式會詢問目標資料夾，並在開始功能表建立捷徑；不會安裝 Grok Runtime。應用程式設定保存在 `%USERPROFILE%\.grok\webui`。
+發行檔包含可直接執行的 `GrokBuildWebUI.exe`、可選擇安裝資料夾的安裝程式，以及精簡 ZIP。ZIP 內含便攜程式與四種語言的說明文件，不重複附上安裝程式。獨立程式不需要安裝 Python 或 Node.js，但仍須先安裝本機 Grok Build Runtime，並確保系統已安裝 Microsoft Edge WebView2 Runtime。若缺少 WebView2，可至[微軟官方下載頁](https://developer.microsoft.com/microsoft-edge/webview2/)安裝 Evergreen Runtime；本專案安裝程式不會安裝這兩種 Runtime。安裝程式會詢問目標資料夾，並在開始功能表建立捷徑。應用程式設定保存在 `%USERPROFILE%\.grok\webui`。
 
 若要自行建置 Windows x64 發行檔，請執行：
 

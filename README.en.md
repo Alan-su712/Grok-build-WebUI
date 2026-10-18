@@ -25,7 +25,7 @@ If Python is not on `PATH`, set `$env:GROK_BUILD_PYTHON = "C:\path\to\python.exe
 
 ## Windows desktop downloads
 
-The release includes a portable `GrokBuildWebUI.exe`, a folder-picker installer, and a compact ZIP. The ZIP contains the portable app and documentation in four languages without duplicating the installer. The portable app does not require Python or Node.js, but the local Grok Build Runtime must already be installed. The installer asks for a destination folder and creates a Start menu shortcut; it does not install the Runtime. App settings are stored in `%USERPROFILE%\.grok\webui`.
+The release includes a portable `GrokBuildWebUI.exe`, a folder-picker installer, and a compact ZIP. The ZIP contains the portable app and documentation in four languages without duplicating the installer. The portable app does not require Python or Node.js, but the local Grok Build Runtime and Microsoft Edge WebView2 Runtime must be available. If WebView2 is missing, install the Evergreen Runtime from [Microsoft's official download page](https://developer.microsoft.com/microsoft-edge/webview2/). This installer does not install either Runtime. It asks for a destination folder and creates a Start menu shortcut. App settings are stored in `%USERPROFILE%\.grok\webui`.
 
 To build the Windows x64 release yourself:
 
