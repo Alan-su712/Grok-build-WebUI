@@ -1,6 +1,8 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import server
@@ -29,6 +31,40 @@ class LanguageRuleTests(unittest.TestCase):
         finally:
             server.STATE["lang"] = original
 
+
+class RuntimePathTests(unittest.TestCase):
+    def test_grok_binary_name_matches_the_platform(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            binary = root / "bin" / "grok"
+            binary.parent.mkdir()
+            binary.touch()
+            previous_root = server.GROK_HOME
+            try:
+                server.GROK_HOME = root
+                with patch.dict(server.os.environ, {"GROK_BIN": ""}):
+                    with patch.object(server.sys, "platform", "darwin"):
+                        self.assertEqual(server.grok_bin(), str(binary))
+            finally:
+                server.GROK_HOME = previous_root
+
+    def test_grok_executable_keeps_windows_suffix(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            binary = root / "bin" / "grok.exe"
+            binary.parent.mkdir()
+            binary.touch()
+            previous_root = server.GROK_HOME
+            try:
+                server.GROK_HOME = root
+                with patch.dict(server.os.environ, {"GROK_BIN": ""}):
+                    with patch.object(server.sys, "platform", "win32"):
+                        self.assertEqual(server.grok_bin(), str(binary))
+            finally:
+                server.GROK_HOME = previous_root
+
+
+class LanguagePromptTests(unittest.TestCase):
     def test_each_prompt_carries_the_current_language_rule(self):
         bridge = object.__new__(server.AcpBridge)
         requests = []

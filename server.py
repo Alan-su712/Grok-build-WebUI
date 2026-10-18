@@ -76,7 +76,8 @@ def grok_bin() -> str:
     env = os.environ.get("GROK_BIN")
     if env:
         return env
-    candidate = GROK_HOME / "bin" / "grok.exe"
+    executable = "grok.exe" if sys.platform == "win32" else "grok"
+    candidate = GROK_HOME / "bin" / executable
     if candidate.exists():
         return str(candidate)
     found = shutil.which("grok")
@@ -3721,6 +3722,23 @@ class Handler(BaseHTTPRequestHandler):
                 cwd = normalize_cwd(body.get("cwd") or STATE.get("cwd"))
                 if not os.path.isdir(cwd):
                     raise RuntimeError("项目文件夹不存在")
+                if sys.platform == "darwin":
+                    app_name = {"vscode": "Visual Studio Code", "cursor": "Cursor"}.get(target)
+                    try:
+                        if target == "explorer":
+                            subprocess.Popen(["open", cwd])
+                        elif app_name:
+                            command_name = "code" if target == "vscode" else "cursor"
+                            command = shutil.which(command_name)
+                            subprocess.Popen([command, cwd] if command else ["open", "-a", app_name, cwd])
+                        else:
+                            raise RuntimeError("不支持的目标")
+                        self._send(200, {"ok": True})
+                    except RuntimeError:
+                        raise
+                    except Exception as exc:
+                        raise RuntimeError(str(exc))
+                    return
                 local = os.environ.get("LOCALAPPDATA", "")
                 flag = getattr(subprocess, "CREATE_NO_WINDOW", 0)
                 exe = {

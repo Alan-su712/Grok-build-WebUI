@@ -1,6 +1,6 @@
 # Grok Build WebUI
 
-![版本](https://img.shields.io/badge/version-1.0.0-596f8a) ![平台](https://img.shields.io/badge/platform-Windows%2010%2F11-596f8a)
+![版本](https://img.shields.io/badge/version-1.0.0-596f8a) ![平台](https://img.shields.io/badge/platform-Windows%2010%2F11%20%2B%20macOS-596f8a)
 
 语言：简体中文（本页） · [繁體中文](README.zh-TW.md) · [English](README.en.md) · [日本語](README.ja.md)
 
@@ -14,6 +14,7 @@ Grok Build WebUI 是一个面向本机 Grok Build Runtime 的多语言网页操�
 
 - 使用本机 Grok Build Runtime，通过浏览器运行本地 WebUI。
 - 在 Windows 桌面窗口中使用同一套界面。
+- 在 macOS 桌面应用中使用同一套界面。
 - 通过 Grok 账号登录，或在 Runtime 支持的情况下配置兼容 API。
 
 浏览器模式不是静态网页：它会在本机启动 Python 服务，以便安全地访问 Runtime、对话和本地文件。服务默认只绑定 `127.0.0.1`，不会对局域网或公网开放。
@@ -22,16 +23,16 @@ Grok Build WebUI 是一个面向本机 Grok Build Runtime 的多语言网页操�
 
 ### 前置条件
 
-- Windows 10／11。
+- Windows 10／11，或 macOS 12 及以上版本。
 - Node.js 18 或更新版本。
 - Python 3.10 或更新版本，并能从命令行启动。
 - 已安装本机 Grok Build Runtime。若使用账号方式，请先完成 Grok 登录；API 接入方式需在 WebUI 中填写自己的服务地址与密钥。
 
 ### 安装与启动
 
-在 PowerShell 中执行：
+在 PowerShell 或 macOS「终端」中执行：
 
-```powershell
+```sh
 npm install --global https://github.com/Alan-su712/Grok-build-webui/archive/refs/heads/main.tar.gz
 grok-build-webui --open
 ```
@@ -44,14 +45,21 @@ grok-build-webui --port 3089 --open
 
 按 `Ctrl+C` 停止服务。此安装方式通过 npm 下载 GitHub 源码归档；目前尚未发布到 npm 官方公共注册表。
 
-如果 Python 不在 `PATH` 中，可先指定解释器：
+如果在 Windows 上 Python 不在 `PATH` 中，可先指定解释器：
 
 ```powershell
 $env:GROK_BUILD_PYTHON = "C:\路径\到\python.exe"
 grok-build-webui --open
 ```
 
-浏览器模式的聊天、设置和本地 Runtime 接入不依赖桌面壳。需要内嵌 PowerShell 终端时，再安装可选组件：
+如果在 macOS 上 Python 不在 `PATH` 中，可在终端指定解释器：
+
+```sh
+export GROK_BUILD_PYTHON="$(command -v python3)"
+grok-build-webui --open
+```
+
+浏览器模式的聊天、设置和本地 Runtime 接入不依赖桌面壳。内嵌 PowerShell 终端组件仅适用于 Windows：
 
 ```powershell
 py -3 -m pip install "pywinpty>=3,<4"
@@ -72,6 +80,23 @@ python -m PyInstaller --clean --noconfirm GrokBuildWebUI.spec
 
 ZIP、独立 EXE 和安装程序会生成在 `release` 文件夹中。安装程序构建使用 Windows 自带的 IExpress。
 
+## macOS 桌面版
+
+Mac 版提供 Apple 芯片（`arm64`）和 Intel 芯片（`x64`）两种原生应用，每种都打包为 `.dmg` 与 `.zip`。从 [GitHub Releases](https://github.com/Alan-su712/Grok-build-webui/releases) 下载与设备架构匹配的文件：打开 `.dmg` 后将应用拖入「应用程序」，或解压 ZIP 后移动 `Grok Build WebUI.app`。桌面应用自带 Python 环境，不需要另外安装 Python 或 Node.js；仍须先安装本机 Grok Build Runtime。Mac 版使用系统文件选择器，不提供 Windows PowerShell 内嵌终端。
+
+目前 Mac 包未使用 Apple Developer ID 签名或公证。首次打开时，按住 Control 键点按应用并选择「打开」，再确认 macOS 提示。应用窗口关闭时程序退出。
+
+若要在 Mac 上自行构建 `.app`、`.dmg` 与 `.zip`：
+
+```sh
+python3 -m venv .venv-macos
+source .venv-macos/bin/activate
+python -m pip install -r requirements-macos-desktop.txt
+bash installer/build-macos.sh
+```
+
+产物会写入 `release` 文件夹，文件名带有芯片架构与版本号。仓库的 `macOS Desktop Release` 工作流程可在 GitHub Actions 中手动运行；选择现有 Release 标签后，会分别在 Apple 芯片与 Intel 构建机上打包并将两种架构的 `.dmg` 和 `.zip` 附加到该 Release。
+
 ### 更新与卸载
 
 重新运行 npm 安装命令以更新到 GitHub `main` 分支的最新内容；卸载命令：
@@ -80,7 +105,7 @@ ZIP、独立 EXE 和安装程序会生成在 `release` 文件夹中。安装程�
 npm uninstall --global grok-build-webui
 ```
 
-用户设置保存在 `%USERPROFILE%\.grok\webui`，Grok Runtime 的账号与配置仍由本机 `.grok` 目录管理。卸载 npm 包不会删除这些用户数据。
+用户设置在 Windows 保存在 `%USERPROFILE%\.grok\webui`，在 macOS 保存在 `~/.grok/webui`；Grok Runtime 的账号与配置仍由本机 `.grok` 目录管理。卸载 npm 包不会删除这些用户数据。
 
 ## 从源码运行桌面版
 
@@ -108,7 +133,7 @@ py -3 desktop.py
 py -3 server.py --open --port 3088
 ```
 
-`server.py` 使用 Python 标准库提供本地服务；内嵌终端功能需要额外安装 `pywinpty`。无论使用哪种方式，都需要本机 Grok Build Runtime 执行模型任务。
+`server.py` 使用 Python 标准库提供本地服务；Windows 内嵌终端功能需要额外安装 `pywinpty`。无论使用哪种方式，都需要本机 Grok Build Runtime 执行模型任务。
 
 ## 开发与桌面打包
 

@@ -10,18 +10,18 @@ Author: **Alan-su712** · [GitHub repository](https://github.com/Alan-su712/Grok
 
 ## Browser mode: install with npm from GitHub
 
-Requirements: Windows 10/11, Node.js 18+, Python 3.10+, and the local Grok Build Runtime. Sign in to your Grok account or configure a supported API connection in the first-run setup.
+Requirements: Windows 10/11 or macOS 12+, Node.js 18+, Python 3.10+, and the local Grok Build Runtime. Sign in to your Grok account or configure a supported API connection in the first-run setup.
 
-In PowerShell:
+Run in PowerShell or macOS Terminal:
 
-```powershell
+```sh
 npm install --global https://github.com/Alan-su712/Grok-build-webui/archive/refs/heads/main.tar.gz
 grok-build-webui --open
 ```
 
 The default address is `http://127.0.0.1:3088/`. To choose another port, run `grok-build-webui --port 3089 --open`. Press `Ctrl+C` to stop. This uses npm to download the public GitHub source archive; the package has not been published to the npm public registry.
 
-If Python is not on `PATH`, set `$env:GROK_BUILD_PYTHON = "C:\path\to\python.exe"` before starting. The embedded PowerShell terminal is optional and requires `py -3 -m pip install "pywinpty>=3,<4"`.
+On Windows, if Python is not on `PATH`, set `$env:GROK_BUILD_PYTHON = "C:\path\to\python.exe"` before starting. On macOS, use `export GROK_BUILD_PYTHON="$(command -v python3)"` if needed. The embedded PowerShell terminal is Windows-only and requires `py -3 -m pip install "pywinpty>=3,<4"`.
 
 ## Windows desktop downloads
 
@@ -37,6 +37,23 @@ python -m PyInstaller --clean --noconfirm GrokBuildWebUI.spec
 ```
 
 The ZIP, portable app, and installer are created in `release`. The installer build uses the Windows IExpress utility.
+
+## macOS desktop downloads
+
+The Mac release provides native Apple Silicon (`arm64`) and Intel (`x64`) builds, each as a `.dmg` and `.zip`. Download the file matching your Mac from [GitHub Releases](https://github.com/Alan-su712/Grok-build-webui/releases). Open the DMG and drag the app to Applications, or unzip the archive and move `Grok Build WebUI.app` to Applications. The desktop app bundles its Python environment, so Python and Node.js are not required; the local Grok Build Runtime must already be installed. The app uses the macOS file picker and does not include the Windows PowerShell terminal.
+
+The Mac packages are not signed with an Apple Developer ID or notarized. To open the app for the first time, Control-click it, choose Open, and confirm the macOS prompt. Closing the app window exits the application.
+
+To build the `.app`, `.dmg`, and `.zip` from source on a Mac:
+
+```sh
+python3 -m venv .venv-macos
+source .venv-macos/bin/activate
+python3 -m pip install -r requirements-macos-desktop.txt
+bash installer/build-macos.sh
+```
+
+The files are written to `release` and include the architecture and version in their names. The `macOS Desktop Release` workflow can be run manually in GitHub Actions; select an existing release tag to build both architectures on matching Mac runners and attach the `.dmg` and `.zip` files to that release.
 
 ## Run the desktop app from source
 
@@ -55,7 +72,7 @@ python desktop.py
 py -3 server.py --open --port 3088
 ```
 
-Browser mode is not a static-only site: the local Python service connects to the local Runtime. It binds only to `127.0.0.1` by default and is not exposed to a LAN or the public internet. User settings are stored in `%USERPROFILE%\.grok\webui`; uninstalling the npm package does not remove them.
+Browser mode is not a static-only site: the local Python service connects to the local Runtime. It binds only to `127.0.0.1` by default and is not exposed to a LAN or the public internet. User settings are stored in `%USERPROFILE%\.grok\webui` on Windows or `~/.grok/webui` on macOS; uninstalling the npm package does not remove them.
 
 ## Project information
 

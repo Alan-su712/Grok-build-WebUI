@@ -5829,7 +5829,10 @@
 
   // 「在哪里打开」启动器
   const openInPrefKey = "grok-webui-openin";
-  const openInPref = () => localStorage.getItem(openInPrefKey) || "vscode";
+  const openInPref = () => {
+    const saved = localStorage.getItem(openInPrefKey) || "vscode";
+    return document.documentElement.dataset.platform === "macos" && saved === "terminal" ? "vscode" : saved;
+  };
   const OPENIN_ICONS = {
     vscode: '<img src="/static/vscode-logo.png?v=1" width="18" height="18" alt="">',
     cursor: '<svg width="15" height="15" viewBox="0 0 20 20"><rect x="2" y="2" width="16" height="16" rx="3.5" fill="#2c2c31"/><path fill="#4a4a52" d="M6 6.5 13.5 5v4.2L6 9.8z"/><path fill="#8f8f98" d="m6 13.5 7.5 1.5V10.6L6 10.2z"/><path fill="#d7d7dc" d="m13.5 5-3 2.6v4.8l3 2.6z"/></svg>',

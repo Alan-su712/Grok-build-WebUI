@@ -1,0 +1,65 @@
+name: macOS Desktop Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 要附加 Mac 安装包的现有 GitHub Release 标签
+        required: true
+        default: v1.0.0
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            architecture: arm64
+          - runner: macos-15-intel
+            architecture: x64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: 检出项目
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 验证目标 Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag_name }}
+        run: |
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Release 标签格式无效。" >&2
+            exit 1
+          fi
+          gh release view "$RELEASE_TAG" >/dev/null
+
+      - name: 安装打包依赖
+        run: python -m pip install -r requirements-macos-desktop.txt
+
+      - name: 构建 macOS 应用与安装包
+        run: bash installer/build-macos.sh
+
+      - name: 校验应用包架构
+        run: |
+          APP="dist/Grok Build WebUI.app/Contents/MacOS/Grok Build WebUI"
+          file "$APP"
+          if [[ "${{ matrix.architecture }}" == "arm64" ]]; then
+            file "$APP" | grep -q arm64
+          else
+            file "$APP" | grep -Eq 'x86_64|x86-64'
+          fi
+
+      - name: 上传 Mac 版至现有 GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag_name }}
+        run: gh release upload "$RELEASE_TAG" release/*.dmg release/*.zip --clobber

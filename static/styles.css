@@ -2142,6 +2142,15 @@ html[data-work-style="harness"] .brand-copy { display: none; }
 .win-controls button:hover { background: var(--hover); color: var(--text); }
 .win-controls button.close:hover { background: #c44747; color: #fff; }
 
+html[data-platform="macos"] .extension-launcher-item[data-extension="terminal"],
+html[data-platform="macos"] #openInMenu [data-oact="terminal"] { display: none !important; }
+html[data-host="desktop"][data-platform="macos"] .chrome { padding-right: 14px !important; }
+html[data-host="desktop"][data-platform="macos"] .drag-strip,
+html[data-host="desktop"][data-platform="macos"] .win-controls,
+html[data-host="desktop"][data-platform="macos"] .settings-drag-strip,
+html[data-host="desktop"][data-platform="macos"] .settings-window-controls,
+html[data-host="desktop"][data-platform="macos"] [data-settings-search-key="closeAction"] { display: none !important; }
+
 /* ===== v37: ZCode 风侧栏菜单 ===== */
 .side-menu { padding: 6px 8px 2px; display: flex; flex-direction: column; gap: 1px; }
 .side-item {

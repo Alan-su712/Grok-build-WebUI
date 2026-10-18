@@ -4,8 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script>
-    if (new URLSearchParams(location.search).get("host") === "desktop") {
+    const launchParams = new URLSearchParams(location.search);
+    if (launchParams.get("host") === "desktop") {
       document.documentElement.dataset.host = "desktop";
+    }
+    if (launchParams.get("platform") === "macos" || /Macintosh|Mac OS X/.test(navigator.userAgent)) {
+      document.documentElement.dataset.platform = "macos";
     }
   </script>
   <title>Grok Build WebUI</title>
