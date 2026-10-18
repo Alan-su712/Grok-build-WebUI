@@ -23,6 +23,21 @@ grok-build-webui --open
 
 若找不到 Python，先設定 `$env:GROK_BUILD_PYTHON = "C:\路徑\到\python.exe"` 再啟動。內嵌 PowerShell 終端是選用功能，需另外執行 `py -3 -m pip install "pywinpty>=3,<4"`。
 
+## Windows 桌面版發行檔
+
+發行檔包含可直接執行的 `GrokBuildWebUI.exe`、可選擇安裝資料夾的安裝程式，以及精簡 ZIP。ZIP 內含便攜程式與四種語言的說明文件，不重複附上安裝程式。獨立程式不需要安裝 Python 或 Node.js，但仍須先安裝本機 Grok Build Runtime。安裝程式會詢問目標資料夾，並在開始功能表建立捷徑；不會安裝 Grok Runtime。應用程式設定保存在 `%USERPROFILE%\.grok\webui`。
+
+若要自行建置 Windows x64 發行檔，請執行：
+
+```powershell
+python -m pip install -r requirements-desktop.txt
+python -m PyInstaller --clean --noconfirm GrokBuildWebUI.spec
+.\installer\build-installer.ps1
+.\installer\package-release.ps1
+```
+
+ZIP、獨立程式及安裝程式會產生於 `release` 資料夾。安裝程式使用 Windows 內建的 IExpress 建置。
+
 ## 桌面版原始碼安裝
 
 ```powershell

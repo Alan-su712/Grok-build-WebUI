@@ -23,6 +23,21 @@ The default address is `http://127.0.0.1:3088/`. To choose another port, run `gr
 
 If Python is not on `PATH`, set `$env:GROK_BUILD_PYTHON = "C:\path\to\python.exe"` before starting. The embedded PowerShell terminal is optional and requires `py -3 -m pip install "pywinpty>=3,<4"`.
 
+## Windows desktop downloads
+
+The release includes a portable `GrokBuildWebUI.exe`, a folder-picker installer, and a compact ZIP. The ZIP contains the portable app and documentation in four languages without duplicating the installer. The portable app does not require Python or Node.js, but the local Grok Build Runtime must already be installed. The installer asks for a destination folder and creates a Start menu shortcut; it does not install the Runtime. App settings are stored in `%USERPROFILE%\.grok\webui`.
+
+To build the Windows x64 release yourself:
+
+```powershell
+python -m pip install -r requirements-desktop.txt
+python -m PyInstaller --clean --noconfirm GrokBuildWebUI.spec
+.\installer\build-installer.ps1
+.\installer\package-release.ps1
+```
+
+The ZIP, portable app, and installer are created in `release`. The installer build uses the Windows IExpress utility.
+
 ## Run the desktop app from source
 
 ```powershell

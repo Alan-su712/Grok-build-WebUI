@@ -23,6 +23,21 @@ grok-build-webui --open
 
 Python が `PATH` にない場合は、起動前に `$env:GROK_BUILD_PYTHON = "C:\path\to\python.exe"` を設定します。内蔵 PowerShell ターミナルはオプションで、利用するには `py -3 -m pip install "pywinpty>=3,<4"` が必要です。
 
+## Windows デスクトップ版の配布ファイル
+
+配布物には、ポータブル版 `GrokBuildWebUI.exe`、保存先フォルダーを選べるセットアッププログラム、コンパクトな ZIP が含まれます。ZIP にはポータブル版と 4 言語の説明書が入り、セットアップを重複して含めません。ポータブル版に Python や Node.js は不要ですが、ローカル Grok Build Runtime は別途インストールしてください。セットアップは保存先を選択し、スタートメニューにショートカットを作成します。Runtime はインストールしません。アプリ設定は `%USERPROFILE%\.grok\webui` に保存されます。
+
+Windows x64 版を自分でビルドする場合：
+
+```powershell
+python -m pip install -r requirements-desktop.txt
+python -m PyInstaller --clean --noconfirm GrokBuildWebUI.spec
+.\installer\build-installer.ps1
+.\installer\package-release.ps1
+```
+
+ZIP、ポータブル版、インストーラーは `release` フォルダーに生成されます。インストーラーの作成には Windows 標準の IExpress を使用します。
+
 ## ソースからデスクトップ版を実行
 
 ```powershell

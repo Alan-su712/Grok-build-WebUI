@@ -57,6 +57,21 @@ grok-build-webui --open
 py -3 -m pip install "pywinpty>=3,<4"
 ```
 
+## Windows 桌面版发行文件
+
+发行文件包含独立运行的 `GrokBuildWebUI.exe`、目录选择式安装程序和一个精简 ZIP。ZIP 内含便携 EXE 与四种语言的说明文件，不重复塞入安装程序。独立 EXE 不需要安装 Python 或 Node.js，但仍需本机已安装 Grok Build Runtime。安装程序会询问目标文件夹，并在开始菜单创建快捷方式；它不会安装 Grok Runtime。应用设置保存在 `%USERPROFILE%\.grok\webui`。
+
+若要自行构建桌面发行文件，请在 Windows x64 上执行：
+
+```powershell
+python -m pip install -r requirements-desktop.txt
+python -m PyInstaller --clean --noconfirm GrokBuildWebUI.spec
+.\installer\build-installer.ps1
+.\installer\package-release.ps1
+```
+
+ZIP、独立 EXE 和安装程序会生成在 `release` 文件夹中。安装程序构建使用 Windows 自带的 IExpress。
+
 ### 更新与卸载
 
 重新运行 npm 安装命令以更新到 GitHub `main` 分支的最新内容；卸载命令：
@@ -97,14 +112,14 @@ py -3 server.py --open --port 3088
 
 ## 开发与桌面打包
 
-安装桌面依赖后，可用 PyInstaller 根据 `GrokBuildWebUI.spec` 生成 Windows 桌面目录包：
+安装桌面依赖后，可用 PyInstaller 根据 `GrokBuildWebUI.spec` 生成可直接运行的单文件 Windows 桌面程序：
 
 ```powershell
 python -m pip install -r requirements-desktop.txt
 python -m PyInstaller --clean --noconfirm GrokBuildWebUI.spec
 ```
 
-构建产物会写入 `dist/GrokBuildWebUI`。请勿将 `state.json`、`.grok` 用户目录、API 密钥、登录状态、运行日志或浏览器配置提交到仓库。
+构建产物为 `dist/GrokBuildWebUI.exe`。应用静态资源内置于程序中；用户设置与运行日志保存在 `%USERPROFILE%\.grok\webui`。请勿将 `state.json`、`.grok` 用户目录、API 密钥、登录状态、运行日志或浏览器配置提交到仓库。
 
 ## 项目信息
 

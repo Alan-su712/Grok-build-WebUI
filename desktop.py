@@ -33,13 +33,19 @@ def _set_process_dpi_awareness() -> None:
 _set_process_dpi_awareness()
 
 _GROK_ROOT = os.environ.get("GROK_HOME", os.path.join(os.path.expanduser("~"), ".grok"))
+if getattr(sys, "frozen", False):
+    bundle_root = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(sys.executable)))
+    os.environ.setdefault("GROK_WEBUI_DIR", bundle_root)
+    os.environ.setdefault("GROK_WEBUI_STATE_DIR", os.path.join(_GROK_ROOT, "webui"))
 WEBUI_DIR = os.environ.get("GROK_WEBUI_DIR", os.path.join(_GROK_ROOT, "webui"))
+STATE_DIR = os.environ.get("GROK_WEBUI_STATE_DIR", WEBUI_DIR)
 if os.path.isdir(WEBUI_DIR):
     os.environ.setdefault("PYTHONUTF8", "1")
     os.environ["GROK_WEBUI_FLUENT_SCROLLBARS"] = "1"
     sys.path.insert(0, WEBUI_DIR)
 
-_LOG = os.path.join(WEBUI_DIR, "desktop-boot.log")
+os.makedirs(STATE_DIR, exist_ok=True)
+_LOG = os.path.join(STATE_DIR, "desktop-boot.log")
 _FRAME_HELPER = None
 
 

@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all
 
-datas = []
+datas = [('static', 'static'), ('market-translations.json', '.')]
 binaries = [('HiddenCaptionFrame.dll', '.')]
 hiddenimports = ['clr', 'webview.platforms.winforms', 'webview.platforms.edgechromium']
 tmp_ret = collect_all('webview')
@@ -28,6 +28,8 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.datas,
     [],
     name='GrokBuildWebUI',
     debug=False,
@@ -43,14 +45,5 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon=['app.ico'],
-    exclude_binaries=True,
-)
-
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.datas,
-    strip=False,
-    upx=False,
-    name='GrokBuildWebUI',
+    exclude_binaries=False,
 )
