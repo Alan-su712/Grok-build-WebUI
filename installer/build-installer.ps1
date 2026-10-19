@@ -28,7 +28,10 @@ New-Item -ItemType Directory -Path $payloadDirectory | Out-Null
 $completed = $false
 try {
     Copy-Item -LiteralPath $portableExe -Destination (Join-Path $payloadDirectory 'GrokBuildWebUI.exe')
-    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'install.ps1') -Destination (Join-Path $payloadDirectory 'install.ps1')
+    $installScript = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'install.ps1') -Raw
+    $installScriptPath = Join-Path $payloadDirectory 'install.ps1'
+    $utf8WithBom = [System.Text.UTF8Encoding]::new($true)
+    [System.IO.File]::WriteAllText($installScriptPath, $installScript, $utf8WithBom)
 
     $sedPath = Join-Path $payloadDirectory 'GrokBuildWebUI.sed'
     $packageOutput = Join-Path $payloadDirectory 'GrokBuildWebUI-Setup.exe'
